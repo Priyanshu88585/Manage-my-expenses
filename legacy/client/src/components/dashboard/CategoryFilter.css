@@ -1,0 +1,51 @@
+/* ========================================
+   CATEGORY FILTER
+   ======================================== */
+
+.category-filter {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-sm);
+}
+
+.category-filter__title {
+  font-size: var(--font-size-base);
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-text-secondary);
+}
+
+.category-filter__pills {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-xs);
+}
+
+.category-filter__pill {
+  padding: var(--space-xs) var(--space-md);
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-medium);
+  color: var(--color-text-secondary);
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-full);
+  cursor: pointer;
+  transition: all var(--transition-fast);
+}
+
+.category-filter__pill:hover {
+  color: var(--color-text-heading);
+  border-color: var(--color-border-subtle);
+  background: var(--color-surface-hover);
+}
+
+.category-filter__pill--active {
+  color: var(--color-background);
+  background: var(--color-accent);
+  border-color: var(--color-accent);
+}
+
+.category-filter__pill--active:hover {
+  background: var(--color-accent-hover);
+  border-color: var(--color-accent-hover);
+  color: var(--color-background);
+}

@@ -1,0 +1,92 @@
+/* ========================================
+   CAPABILITIES SECTION
+   ======================================== */
+
+.capabilities {
+  padding: var(--space-4xl) 0;
+  background: linear-gradient(180deg, transparent 0%, rgba(0, 204, 255, 0.02) 50%, transparent 100%);
+}
+
+.capabilities__container {
+  text-align: center;
+}
+
+.capabilities__label {
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-accent);
+  text-transform: uppercase;
+  letter-spacing: var(--letter-spacing-wider);
+}
+
+.capabilities__title {
+  margin-top: var(--space-sm);
+  font-size: clamp(var(--font-size-2xl), 4vw, var(--font-size-3xl));
+}
+
+.capabilities__highlight {
+  color: var(--color-accent);
+}
+
+.capabilities__grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: var(--space-xl);
+  margin-top: var(--space-2xl);
+  text-align: left;
+}
+
+.capabilities__item {
+  display: flex;
+  gap: var(--space-md);
+  padding: var(--space-lg);
+  border-radius: var(--radius-lg);
+  border: 1px solid transparent;
+  transition: all var(--transition-base);
+}
+
+.capabilities__item:hover {
+  background: var(--color-surface);
+  border-color: var(--color-border);
+}
+
+.capabilities__icon-wrapper {
+  flex-shrink: 0;
+  width: 56px;
+  height: 56px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--color-surface-elevated);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+}
+
+.capabilities__icon {
+  font-size: var(--font-size-xl);
+}
+
+.capabilities__text {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-xxs);
+}
+
+.capabilities__item-title {
+  font-size: var(--font-size-md);
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-text-heading);
+}
+
+.capabilities__item-desc {
+  font-size: var(--font-size-sm);
+  color: var(--color-text-secondary);
+  line-height: var(--line-height-relaxed);
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .capabilities__grid {
+    grid-template-columns: 1fr;
+  }
+}
