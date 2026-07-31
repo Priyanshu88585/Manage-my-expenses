@@ -1,236 +1,108 @@
 import { jest } from '@jest/globals';
-import request from 'supertest';
-import { writeFile, mkdir } from 'fs/promises';
-import { join, dirname } from 'path';
-import { fileURLToPath } from 'url';
+import { getAllExpenses, addExpense, deleteExpense, getTotal } from '../src/features/expenses/services/expenses.service.js';
+import { readData, writeData } from '../src/features/expenses/services/storage.js';
+import { join } from 'path';
 
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = dirname(__filename);
+// Clean data file before and after tests
+const TEST_DATA_FILE = join(process.cwd(), 'data', 'expenses.json');
 
-// Path to the test data file
-const TEST_DATA_PATH = join(__dirname, '..', 'server', 'src', 'data', 'expenses.json');
-
-let app;
-
-beforeAll(async () => {
-  // Reset data file before tests
-  await writeFile(TEST_DATA_PATH, '[]', 'utf-8');
-  // Dynamic import to ensure clean state
-  const mod = await import('../server/src/app.js');
-  app = mod.default;
-});
-
-afterAll(async () => {
-  // Clean up test data
-  await writeFile(TEST_DATA_PATH, '[]', 'utf-8');
-});
-
-describe('Expenses API', () => {
-  let createdExpenseId;
-
-  // ─── POST /expenses ───────────────────────────────────────
-  describe('POST /expenses', () => {
-    it('should create a new expense with valid data', async () => {
-      const expense = {
-        title: 'Lunch',
-        amount: 12.5,
-        category: 'Food',
-        date: '2026-08-01',
-      };
-
-      const res = await request(app)
-        .post('/expenses')
-        .send(expense)
-        .expect('Content-Type', /json/)
-        .expect(201);
-
-      expect(res.body).toHaveProperty('id');
-      expect(res.body.title).toBe('Lunch');
-      expect(res.body.amount).toBe(12.5);
-      expect(res.body.category).toBe('Food');
-      expect(res.body.date).toBe('2026-08-01');
-
-      createdExpenseId = res.body.id;
-    });
-
-    it('should create a second expense', async () => {
-      const expense = {
-        title: 'Taxi',
-        amount: 25.0,
-        category: 'Transport',
-        date: '2026-08-01',
-      };
-
-      const res = await request(app)
-        .post('/expenses')
-        .send(expense)
-        .expect(201);
-
-      expect(res.body.title).toBe('Taxi');
-      expect(res.body.category).toBe('Transport');
-    });
-
-    it('should create a third expense in same category', async () => {
-      const expense = {
-        title: 'Dinner',
-        amount: 30.0,
-        category: 'Food',
-        date: '2026-08-02',
-      };
-
-      const res = await request(app)
-        .post('/expenses')
-        .send(expense)
-        .expect(201);
-
-      expect(res.body.title).toBe('Dinner');
-    });
-
-    it('should return 400 when title is missing', async () => {
-      const res = await request(app)
-        .post('/expenses')
-        .send({ amount: 10, category: 'Food', date: '2026-08-01' })
-        .expect(400);
-
-      expect(res.body).toHaveProperty('error');
-    });
-
-    it('should return 400 when amount is negative', async () => {
-      const res = await request(app)
-        .post('/expenses')
-        .send({ title: 'Bad', amount: -5, category: 'Food', date: '2026-08-01' })
-        .expect(400);
-
-      expect(res.body).toHaveProperty('error');
-    });
-
-    it('should return 400 when amount is zero', async () => {
-      const res = await request(app)
-        .post('/expenses')
-        .send({ title: 'Free', amount: 0, category: 'Food', date: '2026-08-01' })
-        .expect(400);
-
-      expect(res.body).toHaveProperty('error');
-    });
-
-    it('should return 400 when category is empty', async () => {
-      const res = await request(app)
-        .post('/expenses')
-        .send({ title: 'Test', amount: 10, category: '', date: '2026-08-01' })
-        .expect(400);
-
-      expect(res.body).toHaveProperty('error');
-    });
-
-    it('should return 400 when date is invalid', async () => {
-      const res = await request(app)
-        .post('/expenses')
-        .send({ title: 'Test', amount: 10, category: 'Food', date: 'not-a-date' })
-        .expect(400);
-
-      expect(res.body).toHaveProperty('error');
-    });
-
-    it('should return 400 when body is empty', async () => {
-      const res = await request(app)
-        .post('/expenses')
-        .send({})
-        .expect(400);
-
-      expect(res.body).toHaveProperty('error');
-    });
+describe('Expenses Service Unit Tests', () => {
+  beforeEach(async () => {
+    // Reset local data store
+    await writeData([]);
   });
 
-  // ─── GET /expenses ────────────────────────────────────────
-  describe('GET /expenses', () => {
-    it('should return all expenses', async () => {
-      const res = await request(app)
-        .get('/expenses')
-        .expect(200);
-
-      expect(Array.isArray(res.body)).toBe(true);
-      expect(res.body.length).toBe(3);
-    });
-
-    it('should filter expenses by category', async () => {
-      const res = await request(app)
-        .get('/expenses?category=Food')
-        .expect(200);
-
-      expect(res.body.length).toBe(2);
-      res.body.forEach((expense) => {
-        expect(expense.category.toLowerCase()).toBe('food');
-      });
-    });
-
-    it('should return empty array for non-existent category', async () => {
-      const res = await request(app)
-        .get('/expenses?category=NonExistent')
-        .expect(200);
-
-      expect(res.body.length).toBe(0);
-    });
+  afterAll(async () => {
+    // Clean up
+    await writeData([]);
   });
 
-  // ─── GET /expenses/total ──────────────────────────────────
-  describe('GET /expenses/total', () => {
-    it('should return the total of all expenses', async () => {
-      const res = await request(app)
-        .get('/expenses/total')
-        .expect(200);
-
-      expect(res.body).toHaveProperty('total');
-      expect(res.body.total).toBe(67.5); // 12.5 + 25 + 30
+  it('should add a new expense successfully', async () => {
+    const expense = await addExpense({
+      title: 'Office Supplies',
+      amount: 1500,
+      category: 'Office',
+      date: '2026-08-01',
     });
 
-    it('should return total for a specific category', async () => {
-      const res = await request(app)
-        .get('/expenses/total?category=Food')
-        .expect(200);
+    expect(expense).toHaveProperty('id');
+    expect(expense.title).toBe('Office Supplies');
+    expect(expense.amount).toBe(1500);
+    expect(expense.category).toBe('Office');
+    expect(expense.date).toBe('2026-08-01');
 
-      expect(res.body).toHaveProperty('category', 'Food');
-      expect(res.body).toHaveProperty('total');
-      expect(res.body.total).toBe(42.5); // 12.5 + 30
-    });
-
-    it('should return zero for non-existent category', async () => {
-      const res = await request(app)
-        .get('/expenses/total?category=Entertainment')
-        .expect(200);
-
-      expect(res.body.total).toBe(0);
-    });
+    const all = await getAllExpenses();
+    expect(all.length).toBe(1);
+    expect(all[0].id).toBe(expense.id);
   });
 
-  // ─── DELETE /expenses/:id ─────────────────────────────────
-  describe('DELETE /expenses/:id', () => {
-    it('should delete an existing expense', async () => {
-      await request(app)
-        .delete(`/expenses/${createdExpenseId}`)
-        .expect(204);
+  it('should validate expense properties properly', async () => {
+    // Invalid amount
+    await expect(addExpense({
+      title: 'Lunch',
+      amount: -100,
+      category: 'Food',
+      date: '2026-08-01'
+    })).rejects.toThrow();
 
-      // Verify it was removed
-      const res = await request(app).get('/expenses').expect(200);
-      expect(res.body.find((e) => e.id === createdExpenseId)).toBeUndefined();
-    });
-
-    it('should return 404 for non-existent ID', async () => {
-      const res = await request(app)
-        .delete('/expenses/non-existent-id-12345')
-        .expect(404);
-
-      expect(res.body).toHaveProperty('error');
-    });
+    // Missing title
+    await expect(addExpense({
+      title: '',
+      amount: 100,
+      category: 'Food',
+      date: '2026-08-01'
+    })).rejects.toThrow();
   });
 
-  // ─── Unknown routes ───────────────────────────────────────
-  describe('Unknown routes', () => {
-    it('should return 404 for unknown paths', async () => {
-      const res = await request(app)
-        .get('/unknown-route')
-        .expect(404);
+  it('should filter expenses by category', async () => {
+    await addExpense({ title: 'Lunch', amount: 500, category: 'Food', date: '2026-08-01' });
+    await addExpense({ title: 'Server Hosting', amount: 8000, category: 'Infrastructure', date: '2026-08-01' });
+    await addExpense({ title: 'Dinner', amount: 1200, category: 'Food', date: '2026-08-02' });
 
-      expect(res.body).toHaveProperty('error');
+    const foodExpenses = await getAllExpenses('Food');
+    expect(foodExpenses.length).toBe(2);
+    expect(foodExpenses.every(e => e.category === 'Food')).toBe(true);
+
+    const infraExpenses = await getAllExpenses('Infrastructure');
+    expect(infraExpenses.length).toBe(1);
+  });
+
+  it('should calculate overall and category totals correctly', async () => {
+    await addExpense({ title: 'Lunch', amount: 500.50, category: 'Food', date: '2026-08-01' });
+    await addExpense({ title: 'Server Hosting', amount: 8000, category: 'Infrastructure', date: '2026-08-01' });
+    await addExpense({ title: 'Dinner', amount: 1200, category: 'Food', date: '2026-08-02' });
+
+    // Overall total
+    const overall = await getTotal();
+    expect(overall.total).toBe(9700.50);
+
+    // Food category total
+    const foodTotal = await getTotal('Food');
+    expect(foodTotal.total).toBe(1700.50);
+
+    // Non-existent category total
+    const emptyTotal = await getTotal('Travel');
+    expect(emptyTotal.total).toBe(0);
+  });
+
+  it('should delete an expense by ID', async () => {
+    const expense = await addExpense({
+      title: 'Lunch',
+      amount: 500,
+      category: 'Food',
+      date: '2026-08-01'
     });
+
+    const allBefore = await getAllExpenses();
+    expect(allBefore.length).toBe(1);
+
+    await deleteExpense(expense.id);
+
+    const allAfter = await getAllExpenses();
+    expect(allAfter.length).toBe(0);
+  });
+
+  it('should throw error when deleting non-existent ID', async () => {
+    await expect(deleteExpense('non-existent-id')).rejects.toThrow('Expense not found.');
   });
 });

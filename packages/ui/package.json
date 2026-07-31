@@ -1,0 +1,12 @@
+{
+  "name": "@workspace/ui",
+  "version": "1.0.0",
+  "private": true,
+  "exports": {
+    "./*": "./src/*.jsx"
+  },
+  "dependencies": {
+    "react": "^19.2.4",
+    "react-dom": "^19.2.4"
+  }
+}
