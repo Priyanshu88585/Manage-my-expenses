@@ -25,7 +25,7 @@ export default function Navbar() {
         className={`pointer-events-auto flex items-center justify-between px-6 py-3 rounded-full transition-all duration-300 ${
           scrolled 
             ? 'bg-black/40 backdrop-blur-md border border-white/10 shadow-lg w-full max-w-[1300px]' 
-            : 'bg-transparent w-full max-w-[1600px]'
+            : 'bg-transparent w-full max-w-[1450px]'
         }`}
       >
         <div className="flex items-center">

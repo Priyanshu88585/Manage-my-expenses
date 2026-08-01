@@ -12,7 +12,7 @@ import AnalyticsOverview from "@/features/reports/components/AnalyticsOverview.j
 import Footer from "@/components/layout/Footer.jsx";
 import Navbar from "@/components/layout/Navbar.jsx";
 import { fetchExpenses, createExpense, deleteExpense, updateExpense, bulkDeleteExpenses } from "@/features/expenses/services/api.js";
-import { fetchPremiumData } from "@/features/premium/services/premiumClient.js";
+import { fetchPremiumData, addRecurringExpense, updateRecurringExpense, deleteRecurringExpense, updateGoal, deleteGoal, updateBudget, deleteBudget } from "@/features/premium/services/premiumClient.js";
 import AddBudgetModal from "@/features/premium/components/AddBudgetModal.jsx";
 import AddGoalModal from "@/features/premium/components/AddGoalModal.jsx";
 import UpdateNetWorthModal from "@/features/premium/components/UpdateNetWorthModal.jsx";
@@ -128,6 +128,51 @@ export default function Dashboard() {
         updatedIds.add(id);
       }
     }
+  };
+
+  const handleUpdateNetWorth = async (data) => {
+    await loadData();
+  };
+
+  const handleUpdateGoal = async (goalData) => {
+    await updateGoal(goalData);
+    await loadData();
+  };
+
+  const handleDeleteGoal = async (id) => {
+    await deleteGoal(id);
+    await loadData();
+  };
+
+  const handleUpdateBudget = async (budgetData) => {
+    await updateBudget(budgetData);
+    await loadData();
+  };
+
+  const handleDeleteBudget = async (id) => {
+    await deleteBudget(id);
+    await loadData();
+  };
+
+  const handleAddRecurring = async (expenseData) => {
+    await addRecurringExpense(expenseData);
+    await loadData();
+  };
+
+  const handleUpdateRecurring = async (expenseData) => {
+    await updateRecurringExpense(expenseData);
+    await loadData();
+  };
+
+  const handleDeleteRecurring = async (id) => {
+    await deleteRecurringExpense(id);
+    await loadData();
+  };
+
+  const handleScanSuccess = (extractedData) => {
+    setScannedData(extractedData);
+    setIsScannerModalOpen(false);
+    setIsAddExpenseModalOpen(true);
   };
 
   const handleFilterChange = (category) => {
@@ -251,8 +296,18 @@ export default function Dashboard() {
           <section className="animate-fade-in-up" style={{ animationDelay: '150ms' }}>
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
               <div className="lg:col-span-2 flex flex-col gap-8">
-                <BudgetOverview budgets={dynamicBudgets} onAddClick={() => setIsBudgetModalOpen(true)} />
-                <RecurringExpenses subscriptions={premiumData?.recurring || []} />
+                <BudgetOverview 
+                  budgets={dynamicBudgets} 
+                  onAddClick={() => setIsBudgetModalOpen(true)} 
+                  onUpdate={handleUpdateBudget}
+                  onDelete={handleDeleteBudget}
+                />
+                <RecurringExpenses 
+                  subscriptions={premiumData?.recurring || []} 
+                  onAdd={handleAddRecurring}
+                  onUpdate={handleUpdateRecurring}
+                  onDelete={handleDeleteRecurring}
+                />
               </div>
               <div className="flex flex-col gap-8">
                 <NetWorthDashboard 
@@ -261,7 +316,12 @@ export default function Dashboard() {
                   onEditClick={() => setIsNetWorthModalOpen(true)}
                 />
                 <FinancialHealthScore score={healthScore} />
-                <SavingsGoals goals={premiumData?.goals || []} onAddClick={() => setIsGoalModalOpen(true)} />
+                <SavingsGoals 
+                  goals={premiumData?.goals || []} 
+                  onAddClick={() => setIsGoalModalOpen(true)}
+                  onUpdate={handleUpdateGoal}
+                  onDelete={handleDeleteGoal}
+                />
               </div>
             </div>
           </section>

@@ -1,23 +1,69 @@
 {
   "budgets": [
-    { "id": "1", "category": "Food & Dining", "limit": 15000 },
-    { "id": "2", "category": "Transportation", "limit": 5000 },
-    { "id": "3", "category": "Shopping", "limit": 10000 },
-    { "id": "4", "category": "Utilities", "limit": 4000 }
+    {
+      "id": "1",
+      "category": "Food & Dining",
+      "limit": 15000
+    },
+    {
+      "id": "2",
+      "category": "Transportation",
+      "limit": 5000
+    },
+    {
+      "id": "3",
+      "category": "Shopping",
+      "limit": 10000
+    },
+    {
+      "id": "4",
+      "category": "Utilities",
+      "limit": 4000
+    }
   ],
   "goals": [
-    { "id": "1", "title": "Emergency Fund", "target": 500000, "current": 320000, "icon": "🏦" },
-    { "id": "2", "title": "New Car Downpayment", "target": 300000, "current": 45000, "icon": "🚘" },
-    { "id": "3", "title": "Vacation to Japan", "target": 150000, "current": 150000, "icon": "✈️" }
+    {
+      "id": "1",
+      "title": "Emergency Fund",
+      "target": 500000,
+      "current": 320000,
+      "icon": "🏦"
+    },
+    {
+      "id": "2",
+      "title": "New Car Downpayment",
+      "target": 300000,
+      "current": 45000,
+      "icon": "🚘"
+    },
+    {
+      "id": "3",
+      "title": "Vacation to Japan",
+      "target": 150000,
+      "current": 150000,
+      "icon": "✈️"
+    }
   ],
   "recurring": [
-    { "id": "1", "title": "Netflix Subscription", "amount": 649, "frequency": "Monthly", "nextDate": "2026-08-15", "autoPay": true },
-    { "id": "2", "title": "Gym Membership", "amount": 2000, "frequency": "Monthly", "nextDate": "2026-08-05", "autoPay": true },
-    { "id": "3", "title": "Car Insurance", "amount": 15000, "frequency": "Yearly", "nextDate": "2026-11-20", "autoPay": false },
-    { "id": "4", "title": "Spotify Premium", "amount": 119, "frequency": "Monthly", "nextDate": "2026-08-10", "autoPay": true }
+    {
+      "id": "3",
+      "title": "Car Insurance",
+      "amount": 15000,
+      "frequency": "Yearly",
+      "nextDate": "2026-11-20",
+      "autoPay": false
+    },
+    {
+      "id": "4",
+      "title": "Spotify Premium",
+      "amount": 119,
+      "frequency": "Monthly",
+      "nextDate": "2026-08-10",
+      "autoPay": true
+    }
   ],
   "netWorthBase": {
     "baseAssets": 1250000,
-    "baseLiabilities": 340000
+    "baseLiabilities": 30000
   }
 }

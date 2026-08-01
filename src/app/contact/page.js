@@ -15,6 +15,7 @@ import {
 } from "react-icons/fa6";
 import { TextReveal } from "@/components/animations/TextReveal";
 import Link from "next/link";
+import Navbar from "@/components/layout/Navbar.jsx";
 
 const formSchema = z.object({
   name: z.string().min(2, "Name is required"),
@@ -83,7 +84,9 @@ export default function ContactPage() {
   };
 
   return (
-    <section className="relative min-h-screen py-24 lg:py-32 overflow-hidden bg-black text-white">
+    <>
+      <Navbar />
+      <section className="relative min-h-screen py-24 lg:py-32 overflow-hidden bg-black text-white">
       {/* Decorative background elements */}
       <div className="absolute inset-0 bg-[radial-gradient(circle_at_top,_var(--tw-gradient-stops))] from-zinc-900 via-black to-black -z-10"></div>
       <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full max-w-7xl h-[800px] bg-indigo-500/5 blur-[120px] rounded-full -z-10" />
@@ -228,7 +231,8 @@ export default function ContactPage() {
             </form>
           </motion.div>
         </div>
-      </div>
-    </section>
+        </div>
+      </section>
+    </>
   );
 }
