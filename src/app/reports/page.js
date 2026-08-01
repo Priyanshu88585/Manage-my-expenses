@@ -3,7 +3,7 @@ import Footer from '@/components/layout/Footer.jsx';
 import AnalyticsOverview from '@/features/reports/components/AnalyticsOverview.jsx';
 
 export const metadata = {
-  title: 'Financial Reports & Analytics | Smart Expense Tracker',
+  title: 'Financial Reports & Analytics | Manage My Expense',
   description: 'Revenue trends, expense breakdowns, and profit analytics.',
 };
 

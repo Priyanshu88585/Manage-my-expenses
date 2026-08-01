@@ -3,7 +3,7 @@ import Footer from '@/components/layout/Footer.jsx';
 import CompanyList from '@/features/companies/components/CompanyList.jsx';
 
 export const metadata = {
-  title: 'Company Profiles | Smart Expense Tracker',
+  title: 'Company Profiles | Manage My Expense',
   description: 'Manage B2B accounts, enterprise company profiles, and annual spends.',
 };
 

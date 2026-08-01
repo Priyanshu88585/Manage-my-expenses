@@ -3,7 +3,7 @@ import Footer from '@/components/layout/Footer.jsx';
 import ContactTable from '@/features/contacts/components/ContactTable.jsx';
 
 export const metadata = {
-  title: 'Contacts Directory | Smart Expense Tracker',
+  title: 'Contacts Directory | Manage My Expense',
   description: 'Manage client contacts, lead scores, and communication logs.',
 };
 

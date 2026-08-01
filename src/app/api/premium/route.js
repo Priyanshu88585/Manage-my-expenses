@@ -22,6 +22,11 @@ export async function POST(request) {
     } else if (body.type === 'goal') {
       const newGoal = { id: Date.now().toString(), ...body.payload };
       data.goals.push(newGoal);
+    } else if (body.type === 'netWorthBase') {
+      data.netWorthBase = {
+        baseAssets: Number(body.payload.baseAssets) || 0,
+        baseLiabilities: Number(body.payload.baseLiabilities) || 0,
+      };
     } else {
       return NextResponse.json({ error: 'Invalid update type' }, { status: 400 });
     }

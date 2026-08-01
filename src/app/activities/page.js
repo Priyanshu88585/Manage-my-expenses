@@ -3,7 +3,7 @@ import Footer from '@/components/layout/Footer.jsx';
 import ActivityTimeline from '@/features/activities/components/ActivityTimeline.jsx';
 
 export const metadata = {
-  title: 'Activity Log | Smart Expense Tracker',
+  title: 'Activity Log | Manage My Expense',
   description: 'Audit logs, system events, and team activity timeline.',
 };
 

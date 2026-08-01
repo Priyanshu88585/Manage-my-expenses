@@ -3,7 +3,7 @@ import Footer from '@/components/layout/Footer.jsx';
 import LoginForm from '@/features/auth/components/LoginForm.jsx';
 
 export const metadata = {
-  title: 'Sign In | Smart Expense Tracker',
+  title: 'Sign In | Manage My Expense',
   description: 'Sign in to access your financial dashboard and expense reports.',
 };
 

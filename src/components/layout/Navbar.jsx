@@ -24,8 +24,8 @@ export default function Navbar() {
       <nav 
         className={`pointer-events-auto flex items-center justify-between px-6 py-3 rounded-full transition-all duration-300 ${
           scrolled 
-            ? 'bg-black/40 backdrop-blur-md border border-white/10 shadow-lg w-full max-w-[1200px]' 
-            : 'bg-transparent w-full max-w-[1200px]'
+            ? 'bg-black/40 backdrop-blur-md border border-white/10 shadow-lg w-full max-w-[1300px]' 
+            : 'bg-transparent w-full max-w-[1600px]'
         }`}
       >
         <div className="flex items-center">
@@ -46,18 +46,15 @@ export default function Navbar() {
 
         <div className="flex items-center gap-4">
           <div className="hidden md:flex items-center gap-4">
-            <Link href="https://twitter.com" className="text-white/60 hover:text-white transition-colors" aria-label="Twitter">
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
-            </Link>
-            <Link href="https://instagram.com" className="text-white/60 hover:text-white transition-colors" aria-label="Instagram">
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="2" y="2" width="20" height="20" rx="5" ry="5"></rect><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"></path><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"></line></svg>
+            <Link href="/about">
+              <Button variant="outline" className="h-9 px-4 text-xs font-medium uppercase tracking-wider text-white border-white/20 hover:bg-white hover:text-black">About</Button>
             </Link>
             <div className="w-px h-4 bg-white/20 mx-2"></div>
             <Link href="/login">
               <Button variant="outline" className="h-9 px-4 text-xs font-medium uppercase tracking-wider text-white border-white/20 hover:bg-white hover:text-black">Log In</Button>
             </Link>
-            <Link href="/login">
-              <Button variant="primary" className="h-9 px-4 text-xs font-medium uppercase tracking-wider bg-white text-black hover:bg-zinc-200">Start Free</Button>
+            <Link href="/contact">
+              <Button variant="primary" className="h-9 px-4 text-xs font-medium uppercase tracking-wider bg-white text-black hover:bg-zinc-200">Let's Talk</Button>
             </Link>
           </div>
 

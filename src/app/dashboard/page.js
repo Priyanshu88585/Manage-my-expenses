@@ -1,7 +1,6 @@
 "use client";
 import { useState, useEffect, useCallback } from "react";
 import SummaryCards from "@/features/expenses/components/SummaryCards.jsx";
-import ExpenseForm from "@/features/expenses/components/ExpenseForm.jsx";
 import CategoryFilter from "@/features/expenses/components/CategoryFilter.jsx";
 import ExpenseTable from "@/features/expenses/components/ExpenseTable.jsx";
 import BudgetOverview from "@/features/expenses/components/BudgetOverview.jsx";
@@ -9,23 +8,34 @@ import RecurringExpenses from "@/features/expenses/components/RecurringExpenses.
 import FinancialHealthScore from "@/features/reports/components/FinancialHealthScore.jsx";
 import NetWorthDashboard from "@/features/reports/components/NetWorthDashboard.jsx";
 import SavingsGoals from "@/features/expenses/components/SavingsGoals.jsx";
+import AnalyticsOverview from "@/features/reports/components/AnalyticsOverview.jsx";
 import Footer from "@/components/layout/Footer.jsx";
 import Navbar from "@/components/layout/Navbar.jsx";
-import { fetchExpenses, createExpense, deleteExpense } from "@/features/expenses/services/api.js";
+import { fetchExpenses, createExpense, deleteExpense, updateExpense, bulkDeleteExpenses } from "@/features/expenses/services/api.js";
 import { fetchPremiumData } from "@/features/premium/services/premiumClient.js";
 import AddBudgetModal from "@/features/premium/components/AddBudgetModal.jsx";
 import AddGoalModal from "@/features/premium/components/AddGoalModal.jsx";
+import UpdateNetWorthModal from "@/features/premium/components/UpdateNetWorthModal.jsx";
+import AddExpenseModal from "@/features/expenses/components/AddExpenseModal.jsx";
+import ScannerModal from "@/features/expenses/components/ScannerModal.jsx";
+import { Plus, Camera } from "lucide-react";
 
 export default function Dashboard() {
   const [expenses, setExpenses] = useState([]);
   const [premiumData, setPremiumData] = useState(null);
   const [filteredExpenses, setFilteredExpenses] = useState([]);
   const [activeCategory, setActiveCategory] = useState("");
+  const [dateFilter, setDateFilter] = useState("all"); // 'all', 'this_month', 'last_month'
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   
   const [isBudgetModalOpen, setIsBudgetModalOpen] = useState(false);
   const [isGoalModalOpen, setIsGoalModalOpen] = useState(false);
+  const [isNetWorthModalOpen, setIsNetWorthModalOpen] = useState(false);
+  const [isAddExpenseModalOpen, setIsAddExpenseModalOpen] = useState(false);
+  const [isScannerModalOpen, setIsScannerModalOpen] = useState(false);
+  const [scannedData, setScannedData] = useState(null);
+  const [expenseToEdit, setExpenseToEdit] = useState(null);
 
   const loadData = useCallback(async () => {
     try {
@@ -48,24 +58,49 @@ export default function Dashboard() {
     loadData();
   }, [loadData]);
 
-  // Apply category filter
+  // Apply category & date filters
   useEffect(() => {
-    if (activeCategory) {
-      setFilteredExpenses(
-        expenses.filter(
-          (e) => e.category.toLowerCase() === activeCategory.toLowerCase(),
-        ),
-      );
-    } else {
-      setFilteredExpenses(expenses);
+    let filtered = expenses;
+    
+    // Apply Date Filter
+    const now = new Date();
+    const currentMonth = now.getMonth();
+    const currentYear = now.getFullYear();
+    
+    if (dateFilter === "this_month") {
+      filtered = filtered.filter(e => {
+        const d = new Date(e.date);
+        return d.getMonth() === currentMonth && d.getFullYear() === currentYear;
+      });
+    } else if (dateFilter === "last_month") {
+      const lastMonth = currentMonth === 0 ? 11 : currentMonth - 1;
+      const lastMonthYear = currentMonth === 0 ? currentYear - 1 : currentYear;
+      filtered = filtered.filter(e => {
+        const d = new Date(e.date);
+        return d.getMonth() === lastMonth && d.getFullYear() === lastMonthYear;
+      });
     }
-  }, [expenses, activeCategory]);
+
+    // Apply Category Filter
+    if (activeCategory) {
+      filtered = filtered.filter(
+        (e) => e.category.toLowerCase() === activeCategory.toLowerCase(),
+      );
+    }
+    
+    setFilteredExpenses(filtered);
+  }, [expenses, activeCategory, dateFilter]);
 
   const categories = [...new Set(expenses.map((e) => e.category))];
 
-  const handleAdd = async (expenseData) => {
-    const newExpense = await createExpense(expenseData);
-    setExpenses((prev) => [...prev, newExpense]);
+  const handleSave = async (expenseData) => {
+    if (expenseData.id) {
+      const updated = await updateExpense(expenseData.id, expenseData);
+      setExpenses((prev) => prev.map(e => e.id === updated.id ? updated : e));
+    } else {
+      const newExpense = await createExpense(expenseData);
+      setExpenses((prev) => [...prev, newExpense]);
+    }
   };
 
   const handleDelete = async (id) => {
@@ -73,8 +108,36 @@ export default function Dashboard() {
     setExpenses((prev) => prev.filter((e) => e.id !== id));
   };
 
+  const handleBulkDelete = async (ids) => {
+    if (!confirm(`Are you sure you want to delete ${ids.length} expenses?`)) return;
+    await bulkDeleteExpenses(ids);
+    setExpenses((prev) => prev.filter((e) => !ids.includes(e.id)));
+  };
+
+  const handleBulkTag = async (ids) => {
+    const newCategory = prompt('Enter a new category for the selected expenses:');
+    if (!newCategory || !newCategory.trim()) return;
+    
+    // We update them sequentially for now since we don't have a bulk update endpoint yet
+    const updatedIds = new Set();
+    for (const id of ids) {
+      const expense = expenses.find(e => e.id === id);
+      if (expense) {
+        const updated = await updateExpense(id, { ...expense, category: newCategory.trim() });
+        setExpenses(prev => prev.map(e => e.id === id ? updated : e));
+        updatedIds.add(id);
+      }
+    }
+  };
+
   const handleFilterChange = (category) => {
     setActiveCategory(category);
+  };
+  
+  const handleScanComplete = (data) => {
+    setScannedData(data);
+    setIsScannerModalOpen(false);
+    setIsAddExpenseModalOpen(true);
   };
 
   if (loading) {
@@ -96,18 +159,17 @@ export default function Dashboard() {
     );
   }
 
-  // Calculate dynamic metrics based on real expenses
-  const totalExpensesSum = expenses.reduce((sum, e) => sum + (Number(e.amount) || 0), 0);
+  // Calculate dynamic metrics based on filtered expenses (to reflect time context)
+  const totalExpensesSum = filteredExpenses.reduce((sum, e) => sum + (Number(e.amount) || 0), 0);
   
   const dynamicBudgets = premiumData?.budgets?.map(b => {
-    const spent = expenses
+    const spent = filteredExpenses
       .filter(e => e.category === b.category)
       .reduce((sum, e) => sum + (Number(e.amount) || 0), 0);
     return { ...b, spent };
   }) || [];
 
   const dynamicAssets = premiumData?.netWorthBase?.baseAssets || 0;
-  // Treating all tracked expenses as a liability/reduction against assets in this demo
   const dynamicLiabilities = (premiumData?.netWorthBase?.baseLiabilities || 0) + totalExpensesSum; 
 
   const overBudgetCount = dynamicBudgets.filter(b => b.spent > b.limit).length;
@@ -123,14 +185,50 @@ export default function Dashboard() {
         <div className="absolute top-1/4 left-0 w-96 h-96 bg-purple-900/10 rounded-full blur-[120px] pointer-events-none z-0"></div>
         <div className="absolute bottom-0 right-0 w-96 h-96 bg-emerald-900/10 rounded-full blur-[120px] pointer-events-none z-0"></div>
 
-        <div className="relative max-w-7xl mx-auto px-6 py-12 flex flex-col gap-16 z-10">
-          <header className="mb-4 max-w-2xl animate-fade-in-up">
-            <h1 className="text-[clamp(2.5rem,4vw,4rem)] font-display font-medium text-white tracking-tight mb-4 leading-none drop-shadow-md">
-              Dashboard
-            </h1>
-            <p className="text-xl text-white/60">
-              Manage and track all your expenses in one beautiful place.
-            </p>
+        <div className="relative max-w-7xl mx-auto px-6 py-12 flex flex-col gap-12 z-10">
+          
+          {/* Header & Quick Actions */}
+          <header className="flex flex-col md:flex-row md:items-end justify-between gap-6 animate-fade-in-up">
+            <div className="max-w-2xl">
+              <h1 className="text-[clamp(2.5rem,4vw,4rem)] font-display font-medium text-white tracking-tight mb-4 leading-none drop-shadow-md">
+                Dashboard
+              </h1>
+              <p className="text-xl text-white/60">
+                Command center for your financial life.
+              </p>
+            </div>
+            
+            <div className="flex flex-col sm:flex-row items-center gap-4">
+              <select 
+                value={dateFilter}
+                onChange={(e) => setDateFilter(e.target.value)}
+                className="bg-[#111] text-white border border-white/20 rounded-xl px-4 py-3 outline-none focus:border-blue-500 transition-colors w-full sm:w-auto"
+              >
+                <option value="all">All Time</option>
+                <option value="this_month">This Month</option>
+                <option value="last_month">Last Month</option>
+              </select>
+              
+              <button 
+                onClick={() => setIsScannerModalOpen(true)}
+                className="flex items-center justify-center gap-2 px-6 py-3 rounded-xl bg-[#111] hover:bg-white/10 border border-white/20 text-white font-medium transition-all w-full sm:w-auto"
+              >
+                <Camera className="w-5 h-5" />
+                Scan Receipt
+              </button>
+              
+              <button 
+                onClick={() => {
+                  setScannedData(null);
+                  setExpenseToEdit(null);
+                  setIsAddExpenseModalOpen(true);
+                }}
+                className="flex items-center justify-center gap-2 px-6 py-3 rounded-xl bg-blue-600 hover:bg-blue-500 text-white font-medium transition-all shadow-[0_0_20px_rgba(37,99,235,0.3)] w-full sm:w-auto"
+              >
+                <Plus className="w-5 h-5" />
+                Add Transaction
+              </button>
+            </div>
           </header>
 
           {error && (
@@ -139,29 +237,36 @@ export default function Dashboard() {
             </div>
           )}
 
+          {/* Top Metrics Row */}
           <section className="animate-fade-in-up" style={{ animationDelay: '100ms' }}>
-            <SummaryCards expenses={expenses} />
+            <SummaryCards expenses={filteredExpenses} />
           </section>
 
-          {/* New Premium Features Grid */}
+          {/* Charts Row */}
           <section className="animate-fade-in-up" style={{ animationDelay: '125ms' }}>
+            <AnalyticsOverview />
+          </section>
+
+          {/* Features Grid Row */}
+          <section className="animate-fade-in-up" style={{ animationDelay: '150ms' }}>
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
               <div className="lg:col-span-2 flex flex-col gap-8">
                 <BudgetOverview budgets={dynamicBudgets} onAddClick={() => setIsBudgetModalOpen(true)} />
                 <RecurringExpenses subscriptions={premiumData?.recurring || []} />
               </div>
               <div className="flex flex-col gap-8">
-                <NetWorthDashboard assets={dynamicAssets} liabilities={dynamicLiabilities} />
+                <NetWorthDashboard 
+                  assets={dynamicAssets} 
+                  liabilities={dynamicLiabilities} 
+                  onEditClick={() => setIsNetWorthModalOpen(true)}
+                />
                 <FinancialHealthScore score={healthScore} />
                 <SavingsGoals goals={premiumData?.goals || []} onAddClick={() => setIsGoalModalOpen(true)} />
               </div>
             </div>
           </section>
 
-          <section className="animate-fade-in-up" style={{ animationDelay: '150ms' }}>
-            <ExpenseForm onAdd={handleAdd} />
-          </section>
-
+          {/* Ledger Row */}
           <section className="animate-fade-in-up" style={{ animationDelay: '200ms' }}>
             <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 mb-8 border-b border-white/10 pb-6">
               <h2 className="text-3xl font-display font-medium text-white flex items-center gap-4">
@@ -180,7 +285,17 @@ export default function Dashboard() {
               )}
             </div>
             
-            <ExpenseTable expenses={filteredExpenses} onDelete={handleDelete} />
+            <ExpenseTable 
+              expenses={filteredExpenses} 
+              onDelete={handleDelete} 
+              onEdit={(expense) => {
+                setExpenseToEdit(expense);
+                setScannedData(null);
+                setIsAddExpenseModalOpen(true);
+              }}
+              onBulkDelete={handleBulkDelete}
+              onBulkTag={handleBulkTag}
+            />
           </section>
         </div>
       </div>
@@ -195,6 +310,27 @@ export default function Dashboard() {
         isOpen={isGoalModalOpen} 
         onClose={() => setIsGoalModalOpen(false)} 
         onAddSuccess={loadData}
+      />
+      <UpdateNetWorthModal
+        isOpen={isNetWorthModalOpen}
+        onClose={() => setIsNetWorthModalOpen(false)}
+        onUpdateSuccess={loadData}
+        initialAssets={premiumData?.netWorthBase?.baseAssets || 0}
+        initialLiabilities={premiumData?.netWorthBase?.baseLiabilities || 0}
+      />
+      <AddExpenseModal
+        isOpen={isAddExpenseModalOpen}
+        onClose={() => {
+          setIsAddExpenseModalOpen(false);
+          setExpenseToEdit(null);
+        }}
+        onAdd={handleSave}
+        initialData={expenseToEdit || scannedData}
+      />
+      <ScannerModal
+        isOpen={isScannerModalOpen}
+        onClose={() => setIsScannerModalOpen(false)}
+        onScanComplete={handleScanComplete}
       />
     </>
   );

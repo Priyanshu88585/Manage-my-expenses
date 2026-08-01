@@ -1,18 +1,31 @@
 "use client";
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Button from '@workspace/ui/Button';
 import Input from '@workspace/ui/Input';
 import ReceiptScanner from './ReceiptScanner.jsx';
 import { predictCategory } from '../services/categoryAI.service.js';
 import { Check } from 'lucide-react';
 
-function ExpenseForm({ onAdd }) {
+function ExpenseForm({ onAdd, initialData = null, onSuccess }) {
   const [formData, setFormData] = useState({
-    title: '',
-    amount: '',
-    category: '',
-    date: new Date().toISOString().split('T')[0],
+    title: initialData?.title || '',
+    amount: initialData?.amount || '',
+    category: initialData?.category || '',
+    date: initialData?.date || new Date().toISOString().split('T')[0],
   });
+
+
+  useEffect(() => {
+    if (initialData) {
+      setFormData(prev => ({
+        ...prev,
+        title: initialData.title || prev.title,
+        amount: initialData.amount || prev.amount,
+        category: initialData.category || prev.category,
+        date: initialData.date || prev.date
+      }));
+    }
+  }, [initialData]);
   const [errors, setErrors] = useState({});
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [success, setSuccess] = useState(false);
@@ -86,6 +99,7 @@ function ExpenseForm({ onAdd }) {
     setIsSubmitting(true);
     try {
       await onAdd({
+        ...(initialData?.id ? { id: initialData.id } : {}),
         title: formData.title.trim(),
         amount: Number(formData.amount),
         category: formData.category.trim(),
@@ -100,6 +114,7 @@ function ExpenseForm({ onAdd }) {
       setAiSuggestion('');
       setErrors({});
       setSuccess(true);
+      if (onSuccess) onSuccess();
       setTimeout(() => setSuccess(false), 3000);
     } catch (err) {
       setErrors({ form: err.message });
@@ -115,10 +130,12 @@ function ExpenseForm({ onAdd }) {
       <div className="mb-8 flex flex-col md:flex-row md:items-end justify-between gap-6">
         <div>
           <h2 className="text-3xl font-display font-medium text-white mb-2 flex items-center gap-3">
-            New Entry
-            <span className="px-2.5 py-1 rounded-full bg-blue-500/20 border border-blue-500/30 text-[10px] font-bold text-blue-400 uppercase tracking-wider">AI Powered</span>
+            {initialData ? 'Edit Expense' : 'Log Expense'}
+            {!initialData && <span className="px-2.5 py-1 rounded-full bg-blue-500/20 border border-blue-500/30 text-[10px] font-bold text-blue-400 uppercase tracking-wider">AI Powered</span>}
           </h2>
-          <p className="text-white/50 text-sm">Log a new expense manually or use AI receipt scanning.</p>
+          <p className="text-white/50 text-sm">
+            {initialData ? 'Update your transaction details.' : 'Log a new expense manually or use AI receipt scanning.'}
+          </p>
         </div>
         <div className="w-full md:w-64">
           <ReceiptScanner onScanComplete={handleScanComplete} />
@@ -195,13 +212,13 @@ function ExpenseForm({ onAdd }) {
         {success && (
           <p className="text-sm text-emerald-400 py-3 px-5 bg-emerald-500/10 border border-emerald-500/20 rounded-xl animate-fade-in flex items-center gap-2" role="status">
             <Check className="w-4 h-4" />
-            Expense logged successfully!
+            {initialData ? 'Expense updated successfully!' : 'Expense logged successfully!'}
           </p>
         )}
         
         <div className="pt-2">
           <Button type="submit" variant="primary" disabled={isSubmitting} className="w-full sm:w-auto">
-            {isSubmitting ? 'Processing...' : 'Log Expense'}
+            {isSubmitting ? 'Processing...' : (initialData ? 'Update Expense' : 'Log Expense')}
           </Button>
         </div>
       </form>

@@ -47,3 +47,34 @@ export async function deleteExpense(id) {
     throw new Error('Failed to delete expense');
   }
 }
+
+/**
+ * Update an existing expense.
+ */
+export async function updateExpense(id, data) {
+  const res = await fetch(`${API_BASE}/${id}`, {
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(data),
+  });
+  if (!res.ok) {
+    const err = await res.json();
+    throw new Error(err.error || 'Failed to update expense');
+  }
+  return res.json();
+}
+
+/**
+ * Bulk delete expenses.
+ */
+export async function bulkDeleteExpenses(ids) {
+  const res = await fetch(`${API_BASE}/bulk`, {
+    method: 'DELETE',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ ids }),
+  });
+  if (!res.ok) {
+    const err = await res.json();
+    throw new Error(err.error || 'Failed to bulk delete expenses');
+  }
+}

@@ -3,7 +3,7 @@ import Footer from '@/components/layout/Footer.jsx';
 import InboxThreadList from '@/features/inbox/components/InboxThreadList.jsx';
 
 export const metadata = {
-  title: 'Inbox & Communication | Smart Expense Tracker',
+  title: 'Inbox & Communication | Manage My Expense',
   description: 'Centralized inbox for client messages, billing alerts, and team notes.',
 };
 

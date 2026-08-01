@@ -2,7 +2,7 @@ import './globals.css';
 import GlobalSearchModal from '@/features/search/components/GlobalSearchModal.jsx';
 
 export const metadata = {
-  title: 'Smart Expense Tracker',
+  title: 'Manage My Expense',
   description: 'Track and manage your expenses with a cinematic dark-themed dashboard. Add, filter, and analyze your spending effortlessly.',
 };
 

@@ -86,3 +86,57 @@ export async function getTotal(category) {
   const total = expenses.reduce((sum, e) => sum + e.amount, 0);
   return { total: Math.round(total * 100) / 100 };
 }
+
+/**
+ * Update an existing expense by ID.
+ * @param {string} id - The expense ID
+ * @param {object} data - Updated expense data
+ * @returns {Promise<object>} The updated expense
+ */
+export async function updateExpense(id, data) {
+  const { valid, errors } = validateExpense(data);
+  if (!valid) {
+    const err = new Error(errors.join(' '));
+    err.statusCode = 400;
+    throw err;
+  }
+
+  const expenses = await readData();
+  const index = expenses.findIndex((e) => e.id === id);
+
+  if (index === -1) {
+    const err = new Error('Expense not found.');
+    err.statusCode = 404;
+    throw err;
+  }
+
+  const updatedExpense = {
+    ...expenses[index],
+    title: data.title.trim(),
+    amount: Number(data.amount),
+    category: data.category.trim(),
+    date: data.date,
+  };
+
+  expenses[index] = updatedExpense;
+  await writeData(expenses);
+
+  return updatedExpense;
+}
+
+/**
+ * Bulk delete expenses by an array of IDs.
+ * @param {Array<string>} ids - The expense IDs
+ * @returns {Promise<void>}
+ */
+export async function bulkDeleteExpenses(ids) {
+  if (!Array.isArray(ids) || ids.length === 0) return;
+  
+  const expenses = await readData();
+  const filtered = expenses.filter((e) => !ids.includes(e.id));
+  
+  if (filtered.length !== expenses.length) {
+    await writeData(filtered);
+  }
+}
+

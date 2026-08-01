@@ -34,3 +34,16 @@ export async function addGoal(payload) {
   if (!res.ok) throw new Error('Failed to add goal');
   return res.json();
 }
+
+/**
+ * Update net worth base.
+ */
+export async function updateNetWorth(payload) {
+  const res = await fetch(API_BASE, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ type: 'netWorthBase', payload })
+  });
+  if (!res.ok) throw new Error('Failed to update net worth');
+  return res.json();
+}

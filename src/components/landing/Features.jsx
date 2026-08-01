@@ -1,3 +1,7 @@
+"use client";
+import { motion } from 'framer-motion';
+import { TextReveal } from '@/components/animations/TextReveal';
+
 export default function Features() {
   const models = [
     {
@@ -21,32 +25,36 @@ export default function Features() {
   ];
 
   return (
-    <section id="features" className="relative w-full py-32 bg-[#000]">
+    <section id="features" className="relative w-full py-32">
       
-      {/* Background Video (blurred) */}
-      <div className="absolute inset-0 w-full h-full z-0 overflow-hidden opacity-20 pointer-events-none">
-        <video 
-          autoPlay muted loop playsInline 
-          className="min-w-full min-h-full object-cover"
-          src="https://www.gstatic.com/aitestkitchen/website/flow/landing_page/landing_hero__background_video__1440w.mp4"
-        />
-        <div className="absolute inset-0 bg-black/60 backdrop-blur-3xl"></div>
+      
+      <div className="relative z-10 w-full max-w-8xl mx-auto px-6 mb-12 flex flex-col items-center text-center">
+        <TextReveal as="h3" className="text-3xl md:text-5xl font-display font-bold text-white mb-4 tracking-tight">
+          Our Models
+        </TextReveal>
+        <motion.p 
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.5, delay: 0.1 }}
+          className="text-xl text-white/70 max-w-2xl font-light text-balance"
+        >
+          Manage My Expense collaborates with you at every stage, from budgeting to investing—all using advanced financial analysis models.
+        </motion.p>
       </div>
 
-      <div className="relative z-10 w-full max-w-7xl mx-auto px-6 mb-12">
-        <h3 className="text-3xl md:text-5xl font-display font-medium text-white mb-4">Our Models</h3>
-        <p className="text-xl text-white/70 max-w-2xl">
-          ExpenseTracker collaborates with you at every stage, from budgeting to investing—all using advanced financial analysis models.
-        </p>
-      </div>
-
-      <div className="relative z-10 w-full overflow-hidden pb-12">
-        {/* Horizontal scroll container */}
-        <div className="flex gap-6 overflow-x-auto snap-x snap-mandatory px-6 md:px-12 scrollbar-hide pb-8" style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}>
-          
-          {models.map((model) => (
-            <div key={model.id} className="snap-center shrink-0 w-[85vw] md:w-[600px] flex flex-col bg-[#111] border border-white/10 rounded-3xl overflow-hidden hover:border-white/20 transition-colors group">
-              <div className="relative w-full h-[250px] md:h-[350px] bg-black overflow-hidden">
+      <div className="relative z-10 w-full max-w-7xl mx-auto px-6 pb-12">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {models.map((model, idx) => (
+            <motion.div 
+              key={model.id}
+              initial={{ opacity: 0, y: 30 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.6, delay: idx * 0.1 }}
+              className="flex flex-col bg-[#111] border border-white/10 rounded-3xl overflow-hidden hover:border-white/20 transition-colors group shadow-2xl"
+            >
+              <div className="relative w-full h-[250px] bg-black overflow-hidden">
                 <video 
                   src={model.videoUrl} 
                   autoPlay muted loop playsInline 
@@ -56,11 +64,11 @@ export default function Features() {
               </div>
               
               <div className="p-8 flex flex-col flex-grow">
-                <h3 className="text-2xl font-display font-medium text-white mb-3">{model.title}</h3>
-                <p className="text-white/60 text-lg mb-8 flex-grow">{model.desc}</p>
+                <h3 className="text-2xl font-display font-medium text-white mb-3 tracking-tight">{model.title}</h3>
+                <p className="text-white/60 text-lg mb-8 flex-grow font-light">{model.desc}</p>
                 
                 <div className="flex items-center gap-4 mt-auto">
-                  <button className="bg-white text-black px-6 py-2.5 rounded-full font-medium text-sm hover:bg-white/90 transition-colors">
+                  <button className="bg-white text-black px-6 py-2.5 rounded-full font-medium text-sm hover:bg-white/90 transition-colors shadow-[0_0_20px_rgba(255,255,255,0.1)]">
                     Try Feature
                   </button>
                   <button className="bg-transparent border border-white/20 text-white px-6 py-2.5 rounded-full font-medium text-sm hover:bg-white/10 transition-colors">
@@ -68,11 +76,8 @@ export default function Features() {
                   </button>
                 </div>
               </div>
-            </div>
+            </motion.div>
           ))}
-          
-          {/* spacer for end padding */}
-          <div className="shrink-0 w-6"></div>
         </div>
       </div>
     </section>

@@ -1,7 +1,7 @@
 "use client";
-import { TrendingUp } from 'lucide-react';
+import { TrendingUp, Edit2 } from 'lucide-react';
 
-export default function NetWorthDashboard({ assets = 0, liabilities = 0 }) {
+export default function NetWorthDashboard({ assets = 0, liabilities = 0, onEditClick }) {
   const netWorth = assets - liabilities;
 
   return (
@@ -9,7 +9,14 @@ export default function NetWorthDashboard({ assets = 0, liabilities = 0 }) {
       <div className="absolute top-0 right-0 w-64 h-64 bg-gradient-radial from-blue-900/20 to-transparent blur-[60px] pointer-events-none group-hover:opacity-100 transition-opacity duration-700 opacity-50"></div>
       
       <div className="relative z-10 flex flex-col">
-        <span className="text-xs font-semibold text-white/50 uppercase tracking-widest mb-1">Total Net Worth</span>
+        <div className="flex items-center justify-between mb-1">
+          <span className="text-xs font-semibold text-white/50 uppercase tracking-widest">Total Net Worth</span>
+          {onEditClick && (
+            <button onClick={onEditClick} className="text-white/30 hover:text-white transition-colors" title="Update Base Values">
+              <Edit2 className="w-4 h-4" />
+            </button>
+          )}
+        </div>
         <span className="text-4xl font-display font-medium text-white tracking-tighter">
           ₹{netWorth.toLocaleString('en-IN')}
         </span>

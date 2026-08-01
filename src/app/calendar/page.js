@@ -3,7 +3,7 @@ import Footer from '@/components/layout/Footer.jsx';
 import CalendarView from '@/features/calendar/components/CalendarView.jsx';
 
 export const metadata = {
-  title: 'Financial Calendar | Smart Expense Tracker',
+  title: 'Financial Calendar | Manage My Expense',
   description: 'Track tax deadlines, payrolls, and client meetings.',
 };
 

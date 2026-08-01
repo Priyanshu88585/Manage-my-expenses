@@ -3,7 +3,7 @@ import Footer from '@/components/layout/Footer.jsx';
 import AutomationBuilder from '@/features/automation/components/AutomationBuilder.jsx';
 
 export const metadata = {
-  title: 'Workflow Automation | Smart Expense Tracker',
+  title: 'Workflow Automation | Manage My Expense',
   description: 'Automate expense tagging, high-value alerts, and deal triggers.',
 };
 

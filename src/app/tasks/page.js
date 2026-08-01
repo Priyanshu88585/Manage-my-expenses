@@ -3,7 +3,7 @@ import Footer from '@/components/layout/Footer.jsx';
 import TaskList from '@/features/tasks/components/TaskList.jsx';
 
 export const metadata = {
-  title: 'Task Management | Smart Expense Tracker',
+  title: 'Task Management | Manage My Expense',
   description: 'Manage financial tasks, priorities, and deadlines.',
 };
 

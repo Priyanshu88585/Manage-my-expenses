@@ -3,7 +3,7 @@ import Footer from '@/components/layout/Footer.jsx';
 import SubscriptionPlans from '@/features/billing/components/SubscriptionPlans.jsx';
 
 export const metadata = {
-  title: 'Subscription & Billing | Smart Expense Tracker',
+  title: 'Subscription & Billing | Manage My Expense',
   description: 'Manage SaaS plan, payment methods, and invoice history.',
 };
 

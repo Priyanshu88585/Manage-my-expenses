@@ -3,7 +3,7 @@ import Footer from '@/components/layout/Footer.jsx';
 import DealBoard from '@/features/deals/components/DealBoard.jsx';
 
 export const metadata = {
-  title: 'Deals & Sales Pipelines | Smart Expense Tracker',
+  title: 'Deals & Sales Pipelines | Manage My Expense',
   description: 'Manage sales deals, track stage progressions, and forecast revenue pipeline.',
 };
 

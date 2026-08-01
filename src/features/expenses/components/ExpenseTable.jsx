@@ -1,8 +1,10 @@
 "use client";
+import { useState } from 'react';
 import Button from '@workspace/ui/Button';
 import Papa from 'papaparse';
 
-export default function ExpenseTable({ expenses, onDelete }) {
+export default function ExpenseTable({ expenses, onDelete, onEdit, onBulkDelete, onBulkTag }) {
+  const [selectedIds, setSelectedIds] = useState([]);
   if (expenses.length === 0) {
     return (
       <div className="text-center py-16 bg-[#0a0a0a] border border-white/5 rounded-3xl">
@@ -63,11 +65,39 @@ export default function ExpenseTable({ expenses, onDelete }) {
       {/* Bulk Operations & Export Bar */}
       <div className="flex items-center justify-between p-4 bg-[#111] border border-white/10 rounded-2xl">
         <div className="flex items-center gap-3">
-          <input type="checkbox" className="w-4 h-4 rounded border-white/20 bg-black text-blue-500 focus:ring-blue-500 focus:ring-offset-black" />
-          <span className="text-sm font-medium text-white/70">Select All</span>
+          <input 
+            type="checkbox" 
+            checked={expenses.length > 0 && selectedIds.length === expenses.length}
+            onChange={(e) => {
+              if (e.target.checked) {
+                setSelectedIds(expenses.map(exp => exp.id));
+              } else {
+                setSelectedIds([]);
+              }
+            }}
+            className="w-4 h-4 rounded border-white/20 bg-black text-blue-500 focus:ring-blue-500 focus:ring-offset-black" 
+          />
+          <span className="text-sm font-medium text-white/70">
+            {selectedIds.length > 0 ? `${selectedIds.length} Selected` : 'Select All'}
+          </span>
           <div className="w-px h-4 bg-white/20 mx-2"></div>
-          <button className="text-xs font-medium text-white/50 hover:text-white transition-colors">Bulk Tag</button>
-          <button className="text-xs font-medium text-red-400/50 hover:text-red-400 transition-colors">Bulk Delete</button>
+          <button 
+            onClick={() => { if (selectedIds.length && onBulkTag) onBulkTag(selectedIds); }}
+            className={`text-xs font-medium transition-colors ${selectedIds.length ? 'text-blue-400 hover:text-blue-300' : 'text-white/50 cursor-not-allowed'}`}
+          >
+            Bulk Tag
+          </button>
+          <button 
+            onClick={() => {
+              if (selectedIds.length && onBulkDelete) {
+                onBulkDelete(selectedIds);
+                setSelectedIds([]);
+              }
+            }}
+            className={`text-xs font-medium transition-colors ${selectedIds.length ? 'text-red-400 hover:text-red-300' : 'text-red-400/30 cursor-not-allowed'}`}
+          >
+            Bulk Delete
+          </button>
         </div>
         <div className="flex items-center gap-2">
           <button 
@@ -103,7 +133,18 @@ export default function ExpenseTable({ expenses, onDelete }) {
                 <tr key={expense.id} className="hover:bg-white/[0.02] transition-colors group">
                   <td className="px-6 py-5 text-sm text-white/60 whitespace-nowrap font-medium">
                     <div className="flex items-center gap-3">
-                      <input type="checkbox" className="w-4 h-4 rounded border-white/20 bg-black text-blue-500 focus:ring-blue-500 focus:ring-offset-black" />
+                      <input 
+                        type="checkbox" 
+                        checked={selectedIds.includes(expense.id)}
+                        onChange={(e) => {
+                          if (e.target.checked) {
+                            setSelectedIds(prev => [...prev, expense.id]);
+                          } else {
+                            setSelectedIds(prev => prev.filter(id => id !== expense.id));
+                          }
+                        }}
+                        className="w-4 h-4 rounded border-white/20 bg-black text-blue-500 focus:ring-blue-500 focus:ring-offset-black" 
+                      />
                       {new Date(expense.date).toLocaleDateString(undefined, {
                         year: 'numeric',
                         month: 'short',
@@ -132,8 +173,11 @@ export default function ExpenseTable({ expenses, onDelete }) {
                   </td>
                   <td className="px-6 py-5 text-right whitespace-nowrap">
                     <div className="flex items-center justify-end gap-2">
-                      <button className="text-white/40 hover:text-white px-2 py-1 rounded hover:bg-white/5 transition-colors text-xs font-medium">
-                        Split
+                      <button 
+                        onClick={() => onEdit && onEdit(expense)}
+                        className="text-white/40 hover:text-white px-2 py-1 rounded hover:bg-white/5 transition-colors text-xs font-medium"
+                      >
+                        Edit
                       </button>
                       <button
                         onClick={() => onDelete(expense.id)}
