@@ -9,14 +9,17 @@ A modern, enterprise-grade personal expense tracker built with Next.js (App Rout
 4. **Total Calculation**: Displays overall spending totals and filtered category totals automatically.
 5. **Delete Expense**: Remove any logged transaction with one-click deletion.
 6. **Unified CRM & Financial Features**: 
+   - Net Worth Tracker (with Base Assets/Liabilities)
+   - Smart Budgets (with auto-tracked spend velocity)
+   - Recurring Expenses & Subscriptions tracking
+   - Savings Goals (with visual progress bars)
+   - Financial Health Score
    - Deals Kanban Pipeline (`/deals`)
    - Contacts Directory (`/contacts`)
    - Company profiles (`/companies`)
    - Tasks management board (`/tasks`)
    - Interactive calendar (`/calendar`)
    - Messaging inbox (`/inbox`)
-   - Automated workflow builder (`/automation`)
-   - Comprehensive audit log (`/activities`)
    - Interactive trend charts (`/reports`)
    - Global Cmd+K Search modal for quick module navigation.
 

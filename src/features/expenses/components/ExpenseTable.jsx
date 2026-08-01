@@ -63,8 +63,8 @@ export default function ExpenseTable({ expenses, onDelete, onEdit, onBulkDelete,
   return (
     <div className="flex flex-col gap-4 w-full">
       {/* Bulk Operations & Export Bar */}
-      <div className="flex items-center justify-between p-4 bg-[#111] border border-white/10 rounded-2xl">
-        <div className="flex items-center gap-3">
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 p-4 bg-[#111] border border-white/10 rounded-2xl">
+        <div className="flex items-center gap-3 flex-wrap">
           <input 
             type="checkbox" 
             checked={expenses.length > 0 && selectedIds.length === expenses.length}
@@ -80,7 +80,7 @@ export default function ExpenseTable({ expenses, onDelete, onEdit, onBulkDelete,
           <span className="text-sm font-medium text-white/70">
             {selectedIds.length > 0 ? `${selectedIds.length} Selected` : 'Select All'}
           </span>
-          <div className="w-px h-4 bg-white/20 mx-2"></div>
+          <div className="w-px h-4 bg-white/20 mx-1 hidden sm:block"></div>
           <button 
             onClick={() => { if (selectedIds.length && onBulkTag) onBulkTag(selectedIds); }}
             className={`text-xs font-medium transition-colors ${selectedIds.length ? 'text-blue-400 hover:text-blue-300' : 'text-white/50 cursor-not-allowed'}`}
@@ -104,13 +104,13 @@ export default function ExpenseTable({ expenses, onDelete, onEdit, onBulkDelete,
             onClick={exportCSV}
             className="px-4 py-1.5 rounded-full bg-blue-500/20 text-blue-400 border border-blue-500/30 text-xs font-bold uppercase tracking-wider hover:bg-blue-500/40 transition-colors"
           >
-            Export CSV
+            CSV
           </button>
           <button 
             onClick={exportPDF}
             className="px-4 py-1.5 rounded-full bg-purple-500/20 text-purple-400 border border-purple-500/30 text-xs font-bold uppercase tracking-wider hover:bg-purple-500/40 transition-colors"
           >
-            Export PDF
+            PDF
           </button>
         </div>
       </div>

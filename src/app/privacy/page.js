@@ -3,10 +3,13 @@ import Link from 'next/link';
 import { ArrowLeft } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { TextReveal } from '@/components/animations/TextReveal';
+import Navbar from '@/components/layout/Navbar.jsx';
 
 export default function PrivacyPage() {
   return (
-    <div className="min-h-screen bg-black text-white selection:bg-blue-500/30 selection:text-white overflow-hidden relative pb-32">
+    <>
+      <Navbar />
+      <div className="min-h-screen bg-black text-white selection:bg-blue-500/30 selection:text-white overflow-hidden relative pb-32">
       {/* Background Gradients */}
       <div className="fixed inset-0 pointer-events-none z-0">
         <div className="absolute top-0 right-0 w-[50vw] h-[50vw] bg-emerald-900/10 rounded-full blur-[120px] mix-blend-screen translate-x-1/3 -translate-y-1/3"></div>
@@ -74,6 +77,7 @@ export default function PrivacyPage() {
           </p>
         </section>
       </motion.main>
-    </div>
+      </div>
+    </>
   );
 }
