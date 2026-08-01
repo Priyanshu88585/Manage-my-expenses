@@ -2,6 +2,9 @@
 import { useState } from 'react';
 import Button from '@workspace/ui/Button';
 import Input from '@workspace/ui/Input';
+import ReceiptScanner from './ReceiptScanner.jsx';
+import { predictCategory } from '../services/categoryAI.service.js';
+import { Check } from 'lucide-react';
 
 function ExpenseForm({ onAdd }) {
   const [formData, setFormData] = useState({
@@ -13,6 +16,7 @@ function ExpenseForm({ onAdd }) {
   const [errors, setErrors] = useState({});
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [success, setSuccess] = useState(false);
+  const [aiSuggestion, setAiSuggestion] = useState('');
 
   const validate = () => {
     const newErrors = {};
@@ -28,8 +32,44 @@ function ExpenseForm({ onAdd }) {
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
+    
+    // AI Category Prediction on title change
+    if (name === 'title' && value.length > 2) {
+      const suggestedCategory = predictCategory(value);
+      if (suggestedCategory && suggestedCategory !== 'Miscellaneous') {
+        setAiSuggestion(suggestedCategory);
+      } else {
+        setAiSuggestion('');
+      }
+    } else if (name === 'title') {
+      setAiSuggestion('');
+    }
+
     if (errors[name]) {
       setErrors((prev) => ({ ...prev, [name]: '' }));
+    }
+  };
+
+  const applyAiCategory = () => {
+    if (aiSuggestion) {
+      setFormData(prev => ({ ...prev, category: aiSuggestion }));
+      setAiSuggestion('');
+      if (errors.category) {
+        setErrors(prev => ({ ...prev, category: '' }));
+      }
+    }
+  };
+
+  const handleScanComplete = (extractedData) => {
+    setFormData({
+      title: extractedData.title || formData.title,
+      amount: extractedData.amount || formData.amount,
+      category: extractedData.category || formData.category,
+      date: extractedData.date || formData.date,
+    });
+    setAiSuggestion('');
+    if (Object.keys(errors).length > 0) {
+      setErrors({});
     }
   };
 
@@ -57,6 +97,7 @@ function ExpenseForm({ onAdd }) {
         category: '',
         date: new Date().toISOString().split('T')[0],
       });
+      setAiSuggestion('');
       setErrors({});
       setSuccess(true);
       setTimeout(() => setSuccess(false), 3000);
@@ -71,24 +112,34 @@ function ExpenseForm({ onAdd }) {
     <section className="relative overflow-hidden rounded-3xl bg-[#0a0a0a] border border-white/10 p-8 md:p-12 shadow-2xl" aria-label="Add new expense">
       <div className="absolute top-0 right-0 w-64 h-64 bg-blue-500/10 blur-[100px] pointer-events-none rounded-full"></div>
       
-      <div className="mb-8">
-        <h2 className="text-3xl font-display font-medium text-white mb-2">New Entry</h2>
-        <p className="text-white/50 text-sm">Log a new expense quickly and securely.</p>
+      <div className="mb-8 flex flex-col md:flex-row md:items-end justify-between gap-6">
+        <div>
+          <h2 className="text-3xl font-display font-medium text-white mb-2 flex items-center gap-3">
+            New Entry
+            <span className="px-2.5 py-1 rounded-full bg-blue-500/20 border border-blue-500/30 text-[10px] font-bold text-blue-400 uppercase tracking-wider">AI Powered</span>
+          </h2>
+          <p className="text-white/50 text-sm">Log a new expense manually or use AI receipt scanning.</p>
+        </div>
+        <div className="w-full md:w-64">
+          <ReceiptScanner onScanComplete={handleScanComplete} />
+        </div>
       </div>
       
       <form className="relative z-10 flex flex-col gap-8" onSubmit={handleSubmit} noValidate>
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-          <Input
-            label="Title"
-            id="expense-title"
-            name="title"
-            type="text"
-            placeholder="e.g. Coffee"
-            value={formData.title}
-            onChange={handleChange}
-            error={errors.title}
-            required
-          />
+          <div className="relative">
+            <Input
+              label="Title"
+              id="expense-title"
+              name="title"
+              type="text"
+              placeholder="e.g. Coffee at Starbucks"
+              value={formData.title}
+              onChange={handleChange}
+              error={errors.title}
+              required
+            />
+          </div>
           <Input
             label="Amount (₹)"
             id="expense-amount"
@@ -102,17 +153,30 @@ function ExpenseForm({ onAdd }) {
             error={errors.amount}
             required
           />
-          <Input
-            label="Category"
-            id="expense-category"
-            name="category"
-            type="text"
-            placeholder="e.g. Food"
-            value={formData.category}
-            onChange={handleChange}
-            error={errors.category}
-            required
-          />
+          <div className="relative">
+            <Input
+              label="Category"
+              id="expense-category"
+              name="category"
+              type="text"
+              placeholder="e.g. Food"
+              value={formData.category}
+              onChange={handleChange}
+              error={errors.category}
+              required
+            />
+            {aiSuggestion && (
+              <div className="absolute -top-1 right-1 animate-fade-in-up">
+                <button 
+                  type="button" 
+                  onClick={applyAiCategory}
+                  className="px-2 py-1 rounded bg-blue-500/20 text-blue-400 text-[10px] font-bold hover:bg-blue-500/40 transition-colors flex items-center gap-1 border border-blue-500/30 shadow-[0_0_10px_rgba(59,130,246,0.2)]"
+                >
+                  ✨ Set as {aiSuggestion}
+                </button>
+              </div>
+            )}
+          </div>
           <Input
             label="Date"
             id="expense-date"
@@ -130,14 +194,14 @@ function ExpenseForm({ onAdd }) {
         )}
         {success && (
           <p className="text-sm text-emerald-400 py-3 px-5 bg-emerald-500/10 border border-emerald-500/20 rounded-xl animate-fade-in flex items-center gap-2" role="status">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
-            Expense added successfully!
+            <Check className="w-4 h-4" />
+            Expense logged successfully!
           </p>
         )}
         
         <div className="pt-2">
           <Button type="submit" variant="primary" disabled={isSubmitting} className="w-full sm:w-auto">
-            {isSubmitting ? 'Processing...' : 'Add Expense'}
+            {isSubmitting ? 'Processing...' : 'Log Expense'}
           </Button>
         </div>
       </form>

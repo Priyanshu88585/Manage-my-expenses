@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import { ChevronDown } from 'lucide-react';
 
 export default function Hero() {
   return (
@@ -52,7 +53,7 @@ export default function Hero() {
 
       {/* Down Arrow indicator */}
       <div className="absolute bottom-12 left-1/2 -translate-x-1/2 z-20 animate-bounce">
-        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>
+        <ChevronDown className="w-6 h-6 text-white" />
       </div>
     </section>
   );

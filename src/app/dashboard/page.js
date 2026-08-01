@@ -4,24 +4,40 @@ import SummaryCards from "@/features/expenses/components/SummaryCards.jsx";
 import ExpenseForm from "@/features/expenses/components/ExpenseForm.jsx";
 import CategoryFilter from "@/features/expenses/components/CategoryFilter.jsx";
 import ExpenseTable from "@/features/expenses/components/ExpenseTable.jsx";
+import BudgetOverview from "@/features/expenses/components/BudgetOverview.jsx";
+import RecurringExpenses from "@/features/expenses/components/RecurringExpenses.jsx";
+import FinancialHealthScore from "@/features/reports/components/FinancialHealthScore.jsx";
+import NetWorthDashboard from "@/features/reports/components/NetWorthDashboard.jsx";
+import SavingsGoals from "@/features/expenses/components/SavingsGoals.jsx";
 import Footer from "@/components/layout/Footer.jsx";
 import Navbar from "@/components/layout/Navbar.jsx";
 import { fetchExpenses, createExpense, deleteExpense } from "@/features/expenses/services/api.js";
+import { fetchPremiumData } from "@/features/premium/services/premiumClient.js";
+import AddBudgetModal from "@/features/premium/components/AddBudgetModal.jsx";
+import AddGoalModal from "@/features/premium/components/AddGoalModal.jsx";
 
 export default function Dashboard() {
   const [expenses, setExpenses] = useState([]);
+  const [premiumData, setPremiumData] = useState(null);
   const [filteredExpenses, setFilteredExpenses] = useState([]);
   const [activeCategory, setActiveCategory] = useState("");
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+  
+  const [isBudgetModalOpen, setIsBudgetModalOpen] = useState(false);
+  const [isGoalModalOpen, setIsGoalModalOpen] = useState(false);
 
-  const loadExpenses = useCallback(async () => {
+  const loadData = useCallback(async () => {
     try {
       setError("");
-      const data = await fetchExpenses();
-      setExpenses(data);
+      const [expensesData, pData] = await Promise.all([
+        fetchExpenses(),
+        fetchPremiumData()
+      ]);
+      setExpenses(expensesData);
+      setPremiumData(pData);
     } catch (err) {
-      setError("Failed to load expenses. Is the server running?");
+      setError("Failed to load data. Is the server running?");
       console.error(err);
     } finally {
       setLoading(false);
@@ -29,8 +45,8 @@ export default function Dashboard() {
   }, []);
 
   useEffect(() => {
-    loadExpenses();
-  }, [loadExpenses]);
+    loadData();
+  }, [loadData]);
 
   // Apply category filter
   useEffect(() => {
@@ -80,6 +96,23 @@ export default function Dashboard() {
     );
   }
 
+  // Calculate dynamic metrics based on real expenses
+  const totalExpensesSum = expenses.reduce((sum, e) => sum + (Number(e.amount) || 0), 0);
+  
+  const dynamicBudgets = premiumData?.budgets?.map(b => {
+    const spent = expenses
+      .filter(e => e.category === b.category)
+      .reduce((sum, e) => sum + (Number(e.amount) || 0), 0);
+    return { ...b, spent };
+  }) || [];
+
+  const dynamicAssets = premiumData?.netWorthBase?.baseAssets || 0;
+  // Treating all tracked expenses as a liability/reduction against assets in this demo
+  const dynamicLiabilities = (premiumData?.netWorthBase?.baseLiabilities || 0) + totalExpensesSum; 
+
+  const overBudgetCount = dynamicBudgets.filter(b => b.spent > b.limit).length;
+  const healthScore = Math.max(30, 85 - (overBudgetCount * 15) - (totalExpensesSum > 50000 ? 10 : 0));
+
   return (
     <>
       <Navbar />
@@ -110,6 +143,21 @@ export default function Dashboard() {
             <SummaryCards expenses={expenses} />
           </section>
 
+          {/* New Premium Features Grid */}
+          <section className="animate-fade-in-up" style={{ animationDelay: '125ms' }}>
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+              <div className="lg:col-span-2 flex flex-col gap-8">
+                <BudgetOverview budgets={dynamicBudgets} onAddClick={() => setIsBudgetModalOpen(true)} />
+                <RecurringExpenses subscriptions={premiumData?.recurring || []} />
+              </div>
+              <div className="flex flex-col gap-8">
+                <NetWorthDashboard assets={dynamicAssets} liabilities={dynamicLiabilities} />
+                <FinancialHealthScore score={healthScore} />
+                <SavingsGoals goals={premiumData?.goals || []} onAddClick={() => setIsGoalModalOpen(true)} />
+              </div>
+            </div>
+          </section>
+
           <section className="animate-fade-in-up" style={{ animationDelay: '150ms' }}>
             <ExpenseForm onAdd={handleAdd} />
           </section>
@@ -137,6 +185,17 @@ export default function Dashboard() {
         </div>
       </div>
       <Footer />
+      
+      <AddBudgetModal 
+        isOpen={isBudgetModalOpen} 
+        onClose={() => setIsBudgetModalOpen(false)} 
+        onAddSuccess={loadData}
+      />
+      <AddGoalModal 
+        isOpen={isGoalModalOpen} 
+        onClose={() => setIsGoalModalOpen(false)} 
+        onAddSuccess={loadData}
+      />
     </>
   );
 }

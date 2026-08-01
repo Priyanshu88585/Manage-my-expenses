@@ -1,1 +1,30 @@
-[]
+[
+  {
+    "id": "594a1913-03ca-4f73-a671-69d6bd683fe5",
+    "title": "Amazon Electronics",
+    "amount": 12500,
+    "category": "Shopping",
+    "date": "2026-07-31"
+  },
+  {
+    "id": "9a932afc-17ab-4ce7-9990-f0097b92db69",
+    "title": "SRI KRISHNA",
+    "amount": 65,
+    "category": "Food & Dining",
+    "date": "01/07/17"
+  },
+  {
+    "id": "7c53520e-9363-44a2-b91e-f8d5ebe8aa52",
+    "title": "SRI KRISHNA",
+    "amount": 65,
+    "category": "Food & Dining",
+    "date": "01/07/17"
+  },
+  {
+    "id": "7c3411ec-fcd5-4a35-8d60-2bb684d7aa4b",
+    "title": "adialiis) dase",
+    "amount": 840,
+    "category": "Food & Dining",
+    "date": "8/10/18"
+  }
+]

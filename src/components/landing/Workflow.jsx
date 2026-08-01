@@ -1,3 +1,5 @@
+import { DollarSign } from 'lucide-react';
+
 export default function Workflow() {
   return (
     <section id="tools" className="relative w-full py-32 bg-black">
@@ -30,8 +32,8 @@ export default function Workflow() {
           {/* Card 2: Medium Feature */}
           <div className="rounded-3xl bg-zinc-900 border border-white/10 overflow-hidden relative group p-8 flex flex-col transition-all hover:border-white/20">
             <div className="relative z-10">
-              <div className="w-12 h-12 rounded-xl bg-green-500/20 flex items-center justify-center text-green-400 mb-6">
-                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+              <div className="w-12 h-12 rounded-xl bg-blue-500/10 border border-blue-500/20 flex items-center justify-center text-blue-400 mb-6 group-hover:scale-110 transition-transform duration-300 shadow-[0_0_15px_rgba(59,130,246,0.2)]">
+                <DollarSign className="w-6 h-6" />
               </div>
               <h4 className="text-xl font-display font-medium text-white mb-2">Smart Budgets</h4>
               <p className="text-white/60 text-sm">Set dynamic budgets that adapt to your monthly income fluctuations.</p>
