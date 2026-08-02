@@ -101,13 +101,10 @@ export default function Navbar() {
       {/* Mobile Navigation Drawer */}
       {mobileOpen && (
         <div className="fixed inset-0 z-[49] md:hidden">
-          {/* Backdrop */}
           <div 
             className="absolute inset-0 bg-black/80 backdrop-blur-sm animate-fade-in"
             onClick={() => setMobileOpen(false)}
           />
-          
-          {/* Drawer Panel */}
           <div className="absolute top-[80px] left-4 right-4 bg-[#0a0a0a] border border-white/10 rounded-3xl p-6 shadow-2xl animate-fade-in-up z-10">
             <nav className="flex flex-col gap-1">
               {NAV_LINKS.map(link => (
